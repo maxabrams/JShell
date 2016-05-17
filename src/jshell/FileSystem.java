@@ -7,11 +7,13 @@ import java.io.PrintStream;
 public class FileSystem {
 	private String rootPath;
 	private String root;
+	private String currDir;
 
 	public FileSystem(String rootFolder, PrintStream stream){
 		root = rootFolder;
 		System.setOut(stream);
 		createRootIfMissing();
+		currDir = root;
 	}
 
 	public String getRoot(){
@@ -29,26 +31,36 @@ public class FileSystem {
 	}
 
 	public void createFile(String path){
-		if(path.startsWith(root)){
-			File newFile = new File(rootPath + path);
+		if(path.startsWith(root)||path.split(File.separator).length==1){
+			File newFile;
+			if(!path.startsWith(root)){
+				newFile = new File(rootPath + currDir + File.separator + path);	
+			}else{
+				newFile = new File(rootPath + path);
+			}
 			try {
 				newFile.createNewFile();
 			} catch (IOException e) {
 				System.out.print("\nError: Cannot create file: " + path);
 			}
 		}else{
-			System.out.println(path);
 			System.out.print("\nError:Cannot create file outside of root path");
 		}
 	}
 	
 	public void createFolder(String path){
-		if(path.startsWith(root)){
-			File newFile = new File(rootPath + path);
+		if(path.startsWith(root)||path.split(File.separator).length==1){
+			//full path specified or only a name given
+			File newFile;
+			if(!path.startsWith(root)){
+				newFile = new File(rootPath + currDir + File.separator + path);	
+			}else{
+				newFile = new File(rootPath + path);
+			}
 			try {
 				newFile.mkdirs();
 			} catch (SecurityException e) {
-				System.out.println("Error: Cannot create dirs: " + path);
+				System.out.print("\nError: Cannot create dirs: " + path);
 			}
 		}else{
 			System.out.print("\nError:Cannot create folder outside of root path");
