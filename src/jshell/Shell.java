@@ -22,14 +22,14 @@ public class Shell{
 	private static final int FRAME_HEIGHT = 600;
 	private static final String VERSION = "1.0";
 
-	FileSystem fileSys;
+	private FileSystem fileSys;
 
 	private JFrame shellFrame;
-	JScrollPane outputScroll;
+	private JScrollPane outputScroll;
 	private JTextField inputText;
 	private PrintStream printStream;
 
-	ArrayList<Executable> validCommands;
+	private ArrayList<Executable> validCommands;
 
 	public Shell(){
 
