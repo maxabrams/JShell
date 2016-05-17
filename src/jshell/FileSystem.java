@@ -7,19 +7,22 @@ import java.io.PrintStream;
 public class FileSystem {
 	private String rootPath;
 	private String root;
-	private String currDir;
+	//private String currDir;
 
 	public FileSystem(String rootFolder, PrintStream stream){
 		root = rootFolder;
 		System.setOut(stream);
 		createRootIfMissing();
-		currDir = root;
+		//currDir = root;
 	}
 
 	public String getRoot(){
 		return root;
 	}
 
+	public String getRootPath(){
+		return rootPath;
+	}
 	private void createRootIfMissing(){
 		rootPath = System.getProperty("user.home") + File.separator + "Desktop" + File.separator;
 		File rootFolder = new File(rootPath + root);
@@ -30,7 +33,7 @@ public class FileSystem {
 
 	}
 
-	public void createFile(String path){
+	public void createFile(String currDir, String path){
 		if(path.startsWith(root)||path.split(File.separator).length==1){
 			File newFile;
 			if(!path.startsWith(root)){
@@ -48,7 +51,7 @@ public class FileSystem {
 		}
 	}
 
-	public void createFolder(String path){
+	public void createFolder(String currDir, String path){
 		if(path.startsWith(root)||path.split(File.separator).length==1){
 			//full path specified or only a name given
 			File newFile;
@@ -67,6 +70,7 @@ public class FileSystem {
 		}
 	}
 
+	/*
 	public void changeDir(String path){
 		System.out.print(currDir);
 		if (path.equals("..")){
@@ -109,5 +113,5 @@ public class FileSystem {
 			System.out.print("\nError: Cannot move to folder outside of root path");
 		}
 		System.out.print(currDir);
-	}
+	}*/
 }

@@ -3,8 +3,10 @@ package jshell;
 public class Mkdir implements Executable {
 
 	FileSystem sys;
+	String currDir;
 	public Mkdir(FileSystem sys){
 		this.sys = sys;
+		currDir = sys.getRoot();
 	}
 	
 	@Override
@@ -19,11 +21,11 @@ public class Mkdir implements Executable {
 	}
 
 	@Override
-	public void execute(String[] args) {
-		if(args.length<0){
+	public void execute(String[] currDir, String[] args) {
+		if(args.length<1){
 			System.out.print("\nError: Please supply a directory name or path to create");
 		}else{
-			sys.createFolder(args[0]);
+			sys.createFolder(currDir[0], args[0]);
 		}
 
 	}

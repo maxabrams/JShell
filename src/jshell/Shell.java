@@ -28,6 +28,7 @@ public class Shell{
 	private JScrollPane outputScroll;
 	private JTextField inputText;
 	private PrintStream printStream;
+	private String[] currDir;
 
 	private ArrayList<Executable> validCommands;
 
@@ -68,7 +69,7 @@ public class Shell{
 					inputText.setText("");
 					formattedInput.replace("\n", "");//Get rid of new line
 					System.out.println("");//Print empty string for formatting
-					System.out.print(formattedInput);
+					System.out.print(">"+formattedInput);
 
 					execute(formattedInput);
 
@@ -95,11 +96,14 @@ public class Shell{
 
 		//Setup filesystem
 		fileSys = new FileSystem("JShellHome",printStream);
+		currDir = new String[1];
+		currDir[0]=fileSys.getRoot();
 
 		//Add commands
 		validCommands= new ArrayList<Executable>();
 		validCommands.add(new Mkdir(fileSys));
 		validCommands.add(new Cd(fileSys));
+		validCommands.add(new Ls(fileSys));
 
 		System.setOut(printStream);
 		System.out.println("Welcome to JShell. Possible commands are:...");
@@ -135,7 +139,7 @@ public class Shell{
 					for(int i=1; i< args.length;i++){
 						params[i-1]=args[i];
 					}
-					com.execute(params);
+					com.execute(currDir, params);
 					knownCommand=true;
 					break;
 				}
@@ -148,3 +152,4 @@ public class Shell{
 	}
 
 }
+
