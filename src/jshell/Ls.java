@@ -1,7 +1,6 @@
 package jshell;
 
 import java.io.File;
-import java.io.IOException;
 
 public class Ls implements Executable {
 	FileSystem sys;

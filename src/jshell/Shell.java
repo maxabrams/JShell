@@ -2,8 +2,6 @@ package jshell;
 
 import java.awt.BorderLayout;
 import java.awt.Frame;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
@@ -13,11 +11,9 @@ import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.WindowConstants;
 import javax.swing.text.DefaultCaret;
 
 public class Shell{
@@ -109,7 +105,7 @@ public class Shell{
 		validCommands.add(new Ls(fileSys));
 
 		System.setOut(printStream);
-		System.out.println("Welcome to JShell. Possible commands are:...");
+		System.out.println("Welcome to JShell. Version: " + VERSION + " Possible commands are:");
 		for(Executable com : validCommands){
 			System.out.println(com.getAbout());
 		}
