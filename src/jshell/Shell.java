@@ -35,8 +35,7 @@ public class Shell{
 		//Add commands
 		validCommands= new ArrayList<Executable>();
 		
-		//Setup filesystem
-		fileSys = new FileSystem("JShellHome");
+		
 		//Initialize GUI
 		shellFrame = new JFrame();
 		JPanel shellPanel = new JPanel();
@@ -96,13 +95,15 @@ public class Shell{
 		
 		printStream = new PrintStream(new ShellOutputStream(outputText));
 		
+		//Setup filesystem
+		fileSys = new FileSystem("JShellHome",printStream);
+		
 		System.setOut(printStream);
 		System.out.println("Welcome to JShell. Possible commands are:...");
 		for(Executable com : validCommands){
 			System.out.println(com.getAbout());
 		}
 		System.out.print("System is ready");
-		
 		
 		shellFrame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		shellFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
