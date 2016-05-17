@@ -44,7 +44,7 @@ public class FileSystem {
 				System.out.print("\nError: Cannot create file: " + path);
 			}
 		}else{
-			System.out.print("\nError:Cannot create file outside of root path");
+			System.out.print("\nError: Cannot create file outside of root path");
 		}
 	}
 	
@@ -63,7 +63,7 @@ public class FileSystem {
 				System.out.print("\nError: Cannot create dirs: " + path);
 			}
 		}else{
-			System.out.print("\nError:Cannot create folder outside of root path");
+			System.out.print("\nError: Cannot create folder outside of root path");
 		}
 	}
 }
