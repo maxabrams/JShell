@@ -99,6 +99,7 @@ public class Shell{
 		//Add commands
 		validCommands= new ArrayList<Executable>();
 		validCommands.add(new Mkdir(fileSys));
+		validCommands.add(new Cd(fileSys));
 
 		System.setOut(printStream);
 		System.out.println("Welcome to JShell. Possible commands are:...");
@@ -134,7 +135,7 @@ public class Shell{
 					for(int i=1; i< args.length;i++){
 						params[i-1]=args[i];
 					}
-					com.execute(args);
+					com.execute(params);
 					knownCommand=true;
 					break;
 				}

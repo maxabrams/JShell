@@ -23,7 +23,7 @@ public class Mkdir implements Executable {
 		if(args.length<0){
 			System.out.print("\nError: Please supply a directory name or path to create");
 		}else{
-			sys.createFolder(args[1]);
+			sys.createFolder(args[0]);
 		}
 
 	}

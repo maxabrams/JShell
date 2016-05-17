@@ -47,7 +47,7 @@ public class FileSystem {
 			System.out.print("\nError: Cannot create file outside of root path");
 		}
 	}
-	
+
 	public void createFolder(String path){
 		if(path.startsWith(root)||path.split(File.separator).length==1){
 			//full path specified or only a name given
@@ -65,5 +65,49 @@ public class FileSystem {
 		}else{
 			System.out.print("\nError: Cannot create folder outside of root path");
 		}
+	}
+
+	public void changeDir(String path){
+		System.out.print(currDir);
+		if (path.equals("..")){
+			//need to go up a directory
+			if(!currDir.equals(root+File.separator)){
+				//cannot go past root
+				String[] parsePath = currDir.split(File.separator);
+				//Loop and re-create path
+				currDir = "";
+				for(int i = 0; i < parsePath.length-1;i++){
+					if(i==parsePath.length-1){
+						currDir = currDir + parsePath[i];
+					}else{
+						currDir = currDir + parsePath[i] + File.separator;
+					}
+				}
+				//
+			}
+			return;
+		}
+
+		if(path.startsWith(root)||path.split(File.separator).length==1){
+			//full path specified or only a name given
+			File newFile;
+			if(!path.startsWith(root)){
+				//Must be a folder inside curr dir
+				newFile = new File(rootPath + currDir + File.separator + path);	
+			}else{
+				//change to full path
+				newFile = new File(rootPath + path);
+			}
+			boolean canFind = newFile.exists();
+			if(canFind){
+				currDir = currDir + File.separator + path;
+			}
+			else{
+				System.out.print("\nError: Cannot cannot find dir: " + path);
+			}
+		}else{
+			System.out.print("\nError: Cannot move to folder outside of root path");
+		}
+		System.out.print(currDir);
 	}
 }
