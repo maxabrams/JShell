@@ -1,10 +1,13 @@
 package jshell;
 
 import java.awt.BorderLayout;
+import java.awt.Frame;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
@@ -113,8 +116,65 @@ public class Shell{
 		System.out.print("System is ready");
 
 		//fileSys.createFile("JShellHome/newfile.txt");
+		
+		shellFrame.addWindowListener(new WindowListener(){
+
+			@Override
+			public void windowOpened(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+				int shouldClose = 0;
+				for(Frame f : Frame.getFrames()){
+					if(f.isVisible()==true){
+						shouldClose++;
+					}
+				}
+				
+				if(shouldClose<=1){
+					System.exit(0);
+				}
+				shellFrame.dispose();
+				
+			}
+
+			@Override
+			public void windowClosed(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void windowIconified(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void windowDeiconified(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void windowActivated(WindowEvent e) {
+				//Set window to active output when interacting with window
+				System.setOut(printStream);
+				
+			}
+
+			@Override
+			public void windowDeactivated(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
 		shellFrame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
-		shellFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		shellFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		shellFrame.setVisible(true);
 
 	}
