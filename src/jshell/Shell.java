@@ -22,6 +22,8 @@ public class Shell{
 	private static final int FRAME_HEIGHT = 600;
 	private static final String VERSION = "1.0";
 	
+	FileSystem fileSys;
+	
 	private JFrame shellFrame;
 	JScrollPane outputScroll;
 	private JTextField inputText;
@@ -32,6 +34,9 @@ public class Shell{
 	public Shell(){
 		//Add commands
 		validCommands= new ArrayList<Executable>();
+		
+		//Setup filesystem
+		fileSys = new FileSystem("JShellHome");
 		//Initialize GUI
 		shellFrame = new JFrame();
 		JPanel shellPanel = new JPanel();
@@ -103,6 +108,10 @@ public class Shell{
 		shellFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		shellFrame.setVisible(true);
 		
+	}
+	
+	public FileSystem getFileSystem(){
+		return fileSys;
 	}
 	
 	private void execute(String command){
