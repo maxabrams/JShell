@@ -103,9 +103,10 @@ public class Shell{
 		validCommands.add(new Mkdir(fileSys));
 		validCommands.add(new Cd(fileSys));
 		validCommands.add(new Ls(fileSys));
+		validCommands.add(new Pwd());
 
 		System.setOut(printStream);
-		System.out.println("Welcome to JShell. Version: " + VERSION + " Possible commands are:");
+		System.out.println("Welcome to JShell. Version: " + VERSION + ". Possible commands are:");
 		for(Executable com : validCommands){
 			System.out.println(com.getAbout());
 		}
