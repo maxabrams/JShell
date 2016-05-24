@@ -55,15 +55,20 @@ public class FileSystem {
 		if(path.startsWith(root)||path.split(File.separator).length==1){
 			//full path specified or only a name given
 			File newFile;
+			boolean didCreate = false;
 			if(!path.startsWith(root)){
 				newFile = new File(rootPath + currDir + File.separator + path);	
 			}else{
 				newFile = new File(rootPath + path);
 			}
 			try {
-				newFile.mkdirs();
+				didCreate = newFile.mkdir();
 			} catch (SecurityException e) {
 				System.out.print("\nError: Cannot create dirs: " + path);
+			}
+			
+			if(didCreate == false){
+				System.out.print("\nError: Cannot create directory since missing directory in path: " + path);
 			}
 		}else{
 			System.out.print("\nError: Cannot create folder outside of root path");
