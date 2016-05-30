@@ -178,6 +178,7 @@ public class Shell extends Observable{
 		validCommands.add(textEditor);
 		this.addObserver(textEditor);
 		validCommands.add(new Clear(outputText));
+		validCommands.add(new More(fileSys));
 
 		System.setOut(printStream);
 		System.out.println("Welcome to JShell. Version: " + VERSION + ". Possible commands are:");
