@@ -2,6 +2,8 @@ package jshell;
 
 import java.awt.BorderLayout;
 import java.awt.Frame;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
@@ -56,26 +58,26 @@ public class Shell extends Observable{
 
 			@Override
 			public void keyTyped(KeyEvent e) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if(e.getKeyCode() == KeyEvent.VK_ESCAPE&&isExecuting){
+				
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if(e.getKeyCode() == KeyEvent.VK_ESCAPE&&textEditor.isExecuting()){
 					textEditor.setEditable(false);
 				}
-				else if(e.getKeyCode() == KeyEvent.getExtendedKeyCodeForChar('i')&&isExecuting){
+				else if(e.getKeyCode() == KeyEvent.getExtendedKeyCodeForChar('i')&&textEditor.isExecuting()){
 					textEditor.setEditable(true);
 					
 				}
 				setChanged();
 				notifyObservers();
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-				// TODO Auto-generated method stub
 				
 			}
 			
@@ -92,6 +94,23 @@ public class Shell extends Observable{
 		inputText = new JTextField();//use text field to only allow one line
 
 		//set input to react
+		inputText.addFocusListener(new FocusListener(){
+
+			@Override
+			public void focusGained(FocusEvent e) {
+				if(textEditor.isExecuting()){
+					inputText.setText("");
+				}
+				
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
 		inputText.addKeyListener(new KeyListener(){
 			public void keyPressed(KeyEvent e) { 
 				if(textEditor.isExecuting()==false){
@@ -111,17 +130,18 @@ public class Shell extends Observable{
 						execute(formattedInput);
 					}else{
 						//Already executing
-						
 						setChanged();
 						notifyObservers();
 					}
 				}
+				/*
 				if(e.getKeyCode() == KeyEvent.VK_ESCAPE&&isExecuting){
 					textEditor.setEditable(false);
 					setChanged();
 					notifyObservers();
 					
 				}
+				*/
 				
 			}
 

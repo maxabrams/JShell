@@ -26,6 +26,8 @@ public class Vi implements Executable, Observer{
 	boolean isEditable;
 	boolean isExecuting;
 	String editsMade;
+	boolean notifyInsert;
+	boolean notifyVisual;
 
 	public Vi(JTextArea window, JTextField commandLine, FileSystem sys){
 		outputView = window;
@@ -35,6 +37,8 @@ public class Vi implements Executable, Observer{
 		isEditable = false;
 		isExecuting = false;
 		editsMade = "";
+		notifyInsert = false;
+		notifyVisual = true;
 	}
 
 	public boolean isExecuting(){
@@ -91,7 +95,7 @@ public class Vi implements Executable, Observer{
 				e.printStackTrace();
 			}
 
-			
+
 		}else{
 			//Create the file
 
@@ -110,28 +114,37 @@ public class Vi implements Executable, Observer{
 
 	@Override
 	public void update(Observable o, Object arg) {
-		System.err.println("log messge");
+
 		if(isExecuting){
-			
+
 			if(inputText.getText().equals("i")||isEditable){
 				isEditable = true;
 				editsMade = outputView.getText();
 				outputView.setEditable(true);
-				//inputText.setText("Insert mode");
+				if(notifyInsert==false){
+					inputText.setText("Insert mode");
+					if(editsMade.length()-1>0){
+						//do not add secondary i
+						editsMade = editsMade.substring(0, editsMade.length()-1);
+						outputView.setText(editsMade);
+					}
+					notifyInsert = true;
+					notifyVisual = false;
+				}
+
 			}
-			if(inputText.getText().equals("v")||isEditable == false){
+			else if(inputText.getText().equals("v")||isEditable == false){
 				outputView.setEditable(true);
 				outputView.setText(editsMade);
 				isEditable = false;
-				//inputText.setText("Visual mode");
+				if(notifyVisual==false){
+					inputText.setText("Visual mode");
+					notifyInsert = false;
+					notifyVisual = true;
+				}
+
 			}
-/*
-			if(isEditable==false){
-				outputView.setText(editsMade);
-			}else{
-				editsMade = outputView.getText();
-			}
-		*/	
+
 			if(inputText.getText().equals(":q!")){
 				outputView.setText(prevText);
 				outputView.setEditable(false);
@@ -140,7 +153,7 @@ public class Vi implements Executable, Observer{
 			}
 
 
-			if(inputText.getText().equals(":w")){
+			else if(inputText.getText().equals(":w")){
 				try {
 					if(isCreated == false){
 						sys.createFile(currDir, args);
@@ -166,7 +179,7 @@ public class Vi implements Executable, Observer{
 
 			}
 
-			if(inputText.getText().equals(":wq")){
+			else if(inputText.getText().equals(":wq")){
 				try {
 					if(isCreated == false){
 						sys.createFile(currDir, args);
