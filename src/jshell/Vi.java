@@ -54,7 +54,7 @@ public class Vi implements Executable, Observer{
 	@Override
 	public String getAbout() {
 		// TODO Auto-generated method stub
-		return getName() + " - built in text editor";
+		return getName() + " - built in text editor for specified file";
 	}
 
 	@Override
