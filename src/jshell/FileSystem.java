@@ -50,6 +50,33 @@ public class FileSystem {
 			System.out.print("\nError: Cannot create file outside of root path");
 		}
 	}
+	
+	public boolean doesFileExist(String currDir, String path){
+				File newFile;
+				if(!path.startsWith(root)){
+					newFile = new File(rootPath + currDir + File.separator + path);	
+				}else{
+					newFile = new File(rootPath + path);
+				}
+				
+			return newFile.isFile();
+		
+	}
+	
+	public File getFile(String currDir, String path){
+		if(doesFileExist(currDir, path)){
+			File newFile;
+			if(!path.startsWith(root)){		
+				newFile = new File(rootPath + currDir + File.separator + path);	
+			}else{
+				newFile = new File(rootPath + path);
+			}
+			return newFile;
+		}
+		System.out.print("\nError: Cannot get file: "+ path);
+		return null;
+	}
+	
 
 	public void createFolder(String currDir, String path){
 		if(path.startsWith(root)||path.split(File.separator).length==1){

@@ -8,6 +8,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Observable;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -16,7 +17,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.text.DefaultCaret;
 
-public class Shell{
+public class Shell extends Observable{
 	private static final int FRAME_WIDTH = 600;
 	private static final int FRAME_HEIGHT = 600;
 	private static final String VERSION = "1.0";
@@ -27,7 +28,10 @@ public class Shell{
 	private JScrollPane outputScroll;
 	private JTextField inputText;
 	private PrintStream printStream;
+	private JTextArea outputText;
 	private String[] currDir;
+	private Boolean isExecuting = false;
+	Vi textEditor;
 
 	private ArrayList<Executable> validCommands;
 
@@ -40,7 +44,7 @@ public class Shell{
 		shellPanel.setLayout(new BorderLayout());
 
 		//Create and add output text field
-		JTextArea outputText = new JTextArea();
+		outputText = new JTextArea();
 		for(int i = 0; i < 60; i++){
 			//Fill with blank lines to have text be at the bottom
 			outputText.append("\n");
@@ -48,6 +52,34 @@ public class Shell{
 
 		outputText.setEditable(false);//Dont allow previous commands to be modified
 		outputText.setLineWrap(true);
+		outputText.addKeyListener(new KeyListener(){
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode() == KeyEvent.VK_ESCAPE&&isExecuting){
+					textEditor.setEditable(false);
+				}
+				else if(e.getKeyCode() == KeyEvent.getExtendedKeyCodeForChar('i')&&isExecuting){
+					textEditor.setEditable(true);
+					
+				}
+				setChanged();
+				notifyObservers();
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
 		outputScroll  = new JScrollPane(outputText);//let user scroll through previous commands
 		shellPanel.add(outputScroll,BorderLayout.CENTER);
 
@@ -62,17 +94,35 @@ public class Shell{
 		//set input to react
 		inputText.addKeyListener(new KeyListener(){
 			public void keyPressed(KeyEvent e) { 
-				if(e.getKeyCode() == KeyEvent.VK_ENTER){
-					//Enter has been pressed. Execute the command entered.    		
-					String formattedInput = inputText.getText();
-					inputText.setText("");
-					formattedInput.replace("\n", "");//Get rid of new line
-					System.out.println("");//Print empty string for formatting
-					System.out.print(">"+formattedInput);
-
-					execute(formattedInput);
-
+				if(textEditor.isExecuting()==false){
+					//Text editor will close
+					
+					isExecuting = false;
 				}
+				if(e.getKeyCode() == KeyEvent.VK_ENTER){
+					if(isExecuting == false){// Only send execute when not already executing
+						//Enter has been pressed. Execute the command entered.    		
+						String formattedInput = inputText.getText();
+						inputText.setText("");
+						formattedInput.replace("\n", "");//Get rid of new line
+						System.out.println("");//Print empty string for formatting
+						System.out.print(">"+formattedInput);
+						
+						execute(formattedInput);
+					}else{
+						//Already executing
+						
+						setChanged();
+						notifyObservers();
+					}
+				}
+				if(e.getKeyCode() == KeyEvent.VK_ESCAPE&&isExecuting){
+					textEditor.setEditable(false);
+					setChanged();
+					notifyObservers();
+					
+				}
+				
 			}
 
 			public void keyReleased(KeyEvent e) { 
@@ -104,6 +154,10 @@ public class Shell{
 		validCommands.add(new Cd(fileSys));
 		validCommands.add(new Ls(fileSys));
 		validCommands.add(new Pwd());
+		textEditor = new Vi(outputText,inputText,fileSys);
+		validCommands.add(textEditor);
+		this.addObserver(textEditor);
+		validCommands.add(new Clear(outputText));
 
 		System.setOut(printStream);
 		System.out.println("Welcome to JShell. Version: " + VERSION + ". Possible commands are:");
@@ -113,13 +167,13 @@ public class Shell{
 		System.out.print("System is ready");
 
 		//fileSys.createFile("JShellHome/newfile.txt");
-		
+
 		shellFrame.addWindowListener(new WindowListener(){
 
 			@Override
 			public void windowOpened(WindowEvent e) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
@@ -130,45 +184,45 @@ public class Shell{
 						shouldClose++;
 					}
 				}
-				
+
 				if(shouldClose<=1){
 					System.exit(0);
 				}
 				shellFrame.dispose();
-				
+
 			}
 
 			@Override
 			public void windowClosed(WindowEvent e) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void windowIconified(WindowEvent e) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void windowDeiconified(WindowEvent e) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void windowActivated(WindowEvent e) {
 				//Set window to active output when interacting with window
 				System.setOut(printStream);
-				
+
 			}
 
 			@Override
 			public void windowDeactivated(WindowEvent e) {
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 		});
 		shellFrame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		shellFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -180,7 +234,9 @@ public class Shell{
 		return fileSys;
 	}
 
+
 	private void execute(String command){
+		isExecuting = true;
 		String args[] = command.split(" ");
 		if(args.length==0){
 			//no command to execute
@@ -203,6 +259,12 @@ public class Shell{
 			}
 			if(knownCommand==false){
 				System.out.print("\nUnrecognized command: "+command);
+			}
+			if(textEditor.isExecuting()==true){//If command is VI, it is still executing until editor is closed
+				//otherwise, signal that execution is finished after loop
+				isExecuting = true;
+			}else{
+				isExecuting = false;
 			}
 		}
 
