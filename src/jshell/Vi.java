@@ -15,6 +15,7 @@ import javax.swing.JTextField;
 
 public class Vi implements Executable, Observer{
 
+	//Members of the text editor
 	private JTextArea outputView;
 	private JTextField inputText;
 	String prevText;
@@ -29,6 +30,12 @@ public class Vi implements Executable, Observer{
 	boolean notifyInsert;
 	boolean notifyVisual;
 
+	/**
+	 * Constructor for text editor
+	 * @param window the window to edit in
+	 * @param commandLine the field to listen for commands on
+	 * @param sys the file system to manipulate files on
+	 */
 	public Vi(JTextArea window, JTextField commandLine, FileSystem sys){
 		outputView = window;
 		inputText = commandLine;
@@ -41,6 +48,10 @@ public class Vi implements Executable, Observer{
 		notifyVisual = true;
 	}
 
+	/**
+	 * Return if the text editor is executing
+	 * @return if the text editor is executing or not
+	 */
 	public boolean isExecuting(){
 		return isExecuting;
 	}
@@ -61,6 +72,7 @@ public class Vi implements Executable, Observer{
 	public void execute(String[] currDir, String[] args) {
 		isExecuting = true;
 		if(args.length<1){
+			//Need to give a file name to manipulate
 			System.out.print("\nError: Need to supply a file name");
 			isExecuting = false;
 			return;
@@ -72,80 +84,89 @@ public class Vi implements Executable, Observer{
 			//If file exists, open it	
 			editFile = sys.getFile(currDir[0], args[0]);
 			try {
+				//open the file
 				BufferedReader fileReader = new BufferedReader(new FileReader(editFile));
 				String line = fileReader.readLine();
 				StringBuilder wholeString = new StringBuilder();
 				isCreated = true;
+				//Loop through whole file and add add each line to a string
 				while (line != null) {
 					wholeString.append(line);
 					wholeString.append(System.lineSeparator());
 					line = fileReader.readLine();
 				}
+				//print the string that contains the file contents to screen
 				String fileString = wholeString.toString();
 				outputView.setText(fileString);
 
 				fileReader.close();
 
-
 			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.print("\nError: File not found");
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.print("\nError: File not found");
 			}
 
 
 		}else{
-			//Create the file
-
+			//File does not exist, so create the file
 			isCreated = false;
 			outputView.setText("");
 			editFile = new File(args[0]);
 		}
 		editsMade = outputView.getText();
-
-
 	}
 
+	/**
+	 * Method to set editable status
+	 * @param value boolean value if text editor is edit enabled
+	 */
 	public void setEditable(boolean value){
 		isEditable = value;
 	}
 
 	@Override
 	public void update(Observable o, Object arg) {
-
+		//Notification of change recieved
 		if(isExecuting){
-
+			//VI currently running
 			if(inputText.getText().equals("i")||isEditable){
+				//Insert (Editable) mode, should record edits
 				isEditable = true;
+				//Save edits made to buffer - will use this to ignore anything in visual mode
 				editsMade = outputView.getText();
 				outputView.setEditable(true);
 				if(notifyInsert==false){
+					//User has not been notified of Insert mode
+					//Show insert mode in command bar
 					inputText.setText("Insert mode");
 					if(editsMade.length()-1>0){
-						//do not add secondary i
+						//Do not add secondary i
 						editsMade = editsMade.substring(0, editsMade.length()-1);
 						outputView.setText(editsMade);
 					}
+					//Show that user has been notified of change
 					notifyInsert = true;
 					notifyVisual = false;
 				}
 
 			}
 			else if(inputText.getText().equals("v")||isEditable == false){
-				outputView.setEditable(true);
-				outputView.setText(editsMade);
+				//Visual mode (non-editable)
+				outputView.setEditable(true);//must be still true to allow arrow keys
+				outputView.setText(editsMade);//Ignore anything added by setting to previous text (still allows arrow keys)
 				isEditable = false;
 				if(notifyVisual==false){
+					//User has not been notified of Visual mode
+					//Display visual mode in command bar
 					inputText.setText("Visual mode");
 					notifyInsert = false;
 					notifyVisual = true;
 				}
-
 			}
 
 			if(inputText.getText().equals(":q!")){
+				//Quit without saving
 				outputView.setText(prevText);
 				outputView.setEditable(false);
 				isExecuting = false;
@@ -154,8 +175,10 @@ public class Vi implements Executable, Observer{
 
 
 			else if(inputText.getText().equals(":w")){
+				//Save current text to file
 				try {
 					if(isCreated == false){
+						//Create the file if has not been created
 						sys.createFile(currDir, args);
 						editFile = sys.getFile(currDir, args);
 						isCreated = true;
@@ -168,20 +191,21 @@ public class Vi implements Executable, Observer{
 						System.out.print("\nError: Could not save file");
 						return;
 					}
+					//Write the file
 					BufferedWriter fileWriter = new BufferedWriter(new FileWriter(editFile));
 					fileWriter.write(outputView.getText());
 					fileWriter.close();
 					inputText.setText("File saved");
 				} catch (IOException e) {
 					inputText.setText("Error: Could not save file");
-					e.printStackTrace();
 				}
-
 			}
 
 			else if(inputText.getText().equals(":wq")){
+				//Save the current text to file then quit
 				try {
 					if(isCreated == false){
+						//Create the file if has not been created
 						sys.createFile(currDir, args);
 						editFile = sys.getFile(currDir, args);
 						isCreated = true;
@@ -194,21 +218,19 @@ public class Vi implements Executable, Observer{
 						System.out.print("\nError: Could not save file");
 						return;
 					}
+					//Write the file
 					BufferedWriter fileWriter = new BufferedWriter(new FileWriter(editFile));
 					fileWriter.write(outputView.getText());
 					fileWriter.close();
 					inputText.setText("File saved");
 					outputView.setText(prevText);
 					outputView.setEditable(false);
+					//Set executing to false to "quit"
 					isExecuting = false;
 				} catch (IOException e) {
 					inputText.setText("Error: Could not save file");
-					e.printStackTrace();
 				}
-
 			}
-
 		}
 	}
-
 }
