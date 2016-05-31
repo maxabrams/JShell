@@ -20,12 +20,15 @@ import javax.swing.JTextField;
 import javax.swing.text.DefaultCaret;
 
 public class Shell extends Observable{
+	//Window specs
 	private static final int FRAME_WIDTH = 600;
 	private static final int FRAME_HEIGHT = 600;
+	
+	//Shell Version
 	private static final String VERSION = "1.0";
 
+	//private members
 	private FileSystem fileSys;
-
 	private JFrame shellFrame;
 	private JScrollPane outputScroll;
 	private JTextField inputText;
@@ -33,12 +36,13 @@ public class Shell extends Observable{
 	private JTextArea outputText;
 	private String[] currDir;
 	private Boolean isExecuting = false;
-	Vi textEditor;
-
+	private Vi textEditor;
 	private ArrayList<Executable> validCommands;
 
+	/**
+	 * Constructor to create and show shell
+	 */
 	public Shell(){
-
 
 		//Initialize GUI
 		shellFrame = new JFrame();
@@ -48,43 +52,41 @@ public class Shell extends Observable{
 		//Create and add output text field
 		outputText = new JTextArea();
 		for(int i = 0; i < 60; i++){
-			//Fill with blank lines to have text be at the bottom
+			//Fill with blank lines to have text be at the bottom of console
 			outputText.append("\n");
 		}
 
-		outputText.setEditable(false);//Dont allow previous commands to be modified
+		outputText.setEditable(false);//Don't allow previous commands to be modified
 		outputText.setLineWrap(true);
 		outputText.addKeyListener(new KeyListener(){
 
 			@Override
-			public void keyTyped(KeyEvent e) {
-				
-				
+			public void keyTyped(KeyEvent e) {	
 			}
 
 			@Override
-			public void keyPressed(KeyEvent e) {
-				
+			public void keyPressed(KeyEvent e) {	
 			}
 
 			@Override
 			public void keyReleased(KeyEvent e) {
+				//check if escape was pressed and currently running text editor
 				if(e.getKeyCode() == KeyEvent.VK_ESCAPE&&textEditor.isExecuting()){
+					//should not be editable - escape editing mode
 					textEditor.setEditable(false);
 				}
 				else if(e.getKeyCode() == KeyEvent.getExtendedKeyCodeForChar('i')&&textEditor.isExecuting()){
-					textEditor.setEditable(true);
-					
+					//should enter insert mode
+					textEditor.setEditable(true);	
 				}
+				//Notify text editor
 				setChanged();
-				notifyObservers();
-				
+				notifyObservers();	
 			}
-			
 		});
+		
 		outputScroll  = new JScrollPane(outputText);//let user scroll through previous commands
 		shellPanel.add(outputScroll,BorderLayout.CENTER);
-
 
 		//Autoscroll to the bottom
 		DefaultCaret caret = (DefaultCaret) outputText.getCaret();
@@ -93,29 +95,27 @@ public class Shell extends Observable{
 		//Create input text area
 		inputText = new JTextField();//use text field to only allow one line
 
-		//set input to react
+		//Add listeners to inputText
+		//set input to react to clear input window if running the text editor (for ease when typing in file editor and want to enter command)
 		inputText.addFocusListener(new FocusListener(){
 
 			@Override
 			public void focusGained(FocusEvent e) {
 				if(textEditor.isExecuting()){
+					//clear contents
 					inputText.setText("");
 				}
-				
 			}
 
 			@Override
 			public void focusLost(FocusEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
+			}	
 		});
+		
 		inputText.addKeyListener(new KeyListener(){
 			public void keyPressed(KeyEvent e) { 
 				if(textEditor.isExecuting()==false){
 					//Text editor will close
-					
 					isExecuting = false;
 				}
 				if(e.getKeyCode() == KeyEvent.VK_ENTER){
@@ -134,19 +134,11 @@ public class Shell extends Observable{
 						notifyObservers();
 					}
 				}
-				/*
-				if(e.getKeyCode() == KeyEvent.VK_ESCAPE&&isExecuting){
-					textEditor.setEditable(false);
-					setChanged();
-					notifyObservers();
-					
-				}
-				*/
-				
 			}
 
 			public void keyReleased(KeyEvent e) { 
 				if(e.getKeyCode() == KeyEvent.VK_ENTER){
+					//clear once command has been sent
 					inputText.setText("");
 				}
 			}
@@ -155,15 +147,14 @@ public class Shell extends Observable{
 		});
 
 
+		//Add to GUI
 		shellPanel.add(inputText,BorderLayout.SOUTH);
-
 		shellFrame.add(shellPanel);
 
-		//Redirect system output to our shell
-
+		//Create print stream to send shell output to
 		printStream = new PrintStream(new ShellOutputStream(outputText));
 
-		//Setup filesystem
+		//Setup file system
 		fileSys = new FileSystem("~",printStream);
 		currDir = new String[1];
 		currDir[0]=fileSys.getRoot();
@@ -180,15 +171,17 @@ public class Shell extends Observable{
 		validCommands.add(new Clear(outputText));
 		validCommands.add(new More(fileSys));
 
+		//Redirect system output to our shell
 		System.setOut(printStream);
+		
+		//Print Welcome
 		System.out.println("Welcome to JShell. Version: " + VERSION + ". Possible commands are:");
 		for(Executable com : validCommands){
 			System.out.println(com.getAbout());
 		}
 		System.out.print("System is ready");
 
-		//fileSys.createFile("JShellHome/newfile.txt");
-
+		//Handle multiple windows when closing
 		shellFrame.addWindowListener(new WindowListener(){
 
 			@Override
@@ -245,23 +238,31 @@ public class Shell extends Observable{
 			}
 
 		});
+		
+		//Set frame specs
 		shellFrame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		shellFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		shellFrame.setVisible(true);
 
 	}
 
+	/**
+	 * Method to return shell file system
+	 * @return file sytem the shell uses
+	 */
 	public FileSystem getFileSystem(){
 		return fileSys;
 	}
 
-
+	/**
+	 * Method to execute executables on the shell
+	 * @param command the command that should be executed
+	 */
 	private void execute(String command){
 		isExecuting = true;
 		String args[] = command.split(" ");
 		if(args.length==0){
 			//no command to execute
-
 		}else{
 			boolean knownCommand = false;
 			for(Executable com:validCommands){
@@ -273,12 +274,14 @@ public class Shell extends Observable{
 					for(int i=1; i< args.length;i++){
 						params[i-1]=args[i];
 					}
+					//Execute the command
 					com.execute(currDir, params);
 					knownCommand=true;
 					break;
 				}
 			}
 			if(knownCommand==false){
+				//Unknown command
 				System.out.print("\nUnrecognized command: "+command);
 			}
 			if(textEditor.isExecuting()==true){//If command is VI, it is still executing until editor is closed
@@ -288,8 +291,6 @@ public class Shell extends Observable{
 				isExecuting = false;
 			}
 		}
-
 	}
-
 }
 
