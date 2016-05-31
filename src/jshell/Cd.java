@@ -30,6 +30,10 @@ public class Cd implements Executable {
 			String path = args[0];
 			String root = sys.getRoot();
 			String rootPath = sys.getRootPath();
+			if(path.startsWith(root)&&!path.startsWith(root+File.separator)){
+				System.out.print("\nError: please add file serpator to root folder");
+				return;
+			}
 			//TESTING before and after System.out.print("prev"+currDir[0]);
 			if (path.equals("..")){
 				//need to go up a directory
@@ -37,22 +41,28 @@ public class Cd implements Executable {
 					//cannot go past root
 					String[] parsePath = currDir[0].split(File.separator);
 					//Loop and re-create path
-					currDir[0] = sys.getRoot();
-					for(int i = 1; i < parsePath.length-1;i++){
-						if(i==parsePath.length-2){
-							currDir[0] = currDir[0] + parsePath[i];
-						}else{
-							currDir[0] = currDir[0] + parsePath[i] + File.separator;
+					//currDir[0] = sys.getRoot() + File.separator;
+					if(parsePath.length<=2){
+						currDir[0] = sys.getRoot(); //+ File.separator;// currDir[0] + parsePath[0];
+					}else{
+						currDir[0] = sys.getRoot() + File.separator;
+						for(int i = 1; i < parsePath.length-1;i++){
+							if(i==parsePath.length-2){
+								currDir[0] = currDir[0] + parsePath[i];
+							}else{
+								currDir[0] = currDir[0] + parsePath[i] + File.separator;
+							}
 						}
 					}
 					//
 				}
 				//TESTING System.out.print("fin"+currDir[0]);
 				return;
-				
+
 			}
 
 			if(path.startsWith(root)||path.split(File.separator).length==1){
+
 				//full path specified or only a name given
 				File newFile;
 				if(!path.startsWith(root)){
@@ -62,9 +72,16 @@ public class Cd implements Executable {
 					//change to full path
 					newFile = new File(rootPath + path);
 				}
-				boolean canFind = newFile.exists();
+				boolean canFind = newFile.isDirectory();
 				if(canFind){
-					currDir[0] = currDir[0] + File.separator + path;
+					if(path.startsWith(root+File.separator)){
+						if(path.endsWith("/")){
+							path = path.substring(0, path.length()-1);
+						}
+						currDir[0] = path;
+					}else{
+						currDir[0] = currDir[0] + File.separator + path;
+					}
 				}
 				else{
 					System.out.print("\nError: Cannot cannot find dir: " + path);

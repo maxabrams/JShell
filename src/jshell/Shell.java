@@ -164,7 +164,7 @@ public class Shell extends Observable{
 		printStream = new PrintStream(new ShellOutputStream(outputText));
 
 		//Setup filesystem
-		fileSys = new FileSystem("JShellHome",printStream);
+		fileSys = new FileSystem("~",printStream);
 		currDir = new String[1];
 		currDir[0]=fileSys.getRoot();
 
