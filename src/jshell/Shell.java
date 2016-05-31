@@ -165,11 +165,16 @@ public class Shell extends Observable{
 		validCommands.add(new Cd(fileSys));
 		validCommands.add(new Ls(fileSys));
 		validCommands.add(new Pwd());
-		textEditor = new Vi(outputText,inputText,fileSys);
+		textEditor = new Vi(outputText,inputText,fileSys);//initialize text editor. Must be accessible outside of constructor
 		validCommands.add(textEditor);
 		this.addObserver(textEditor);
 		validCommands.add(new Clear(outputText));
 		validCommands.add(new More(fileSys));
+		validCommands.add(new Cp(fileSys));
+		validCommands.add(new Mv(fileSys));
+		validCommands.add(new Rm(fileSys));
+		validCommands.add(new Rmdir(fileSys));
+		
 
 		//Redirect system output to our shell
 		System.setOut(printStream);
