@@ -5,7 +5,7 @@ import java.io.File;
 public class Cd implements Executable {
 
 	FileSystem sys;
-	/*
+	/**
 	 * Constructor for Cd
 	 * @param sys FileSystem used for directory manipulation
 	 */

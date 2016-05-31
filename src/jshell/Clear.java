@@ -6,7 +6,7 @@ public class Clear implements Executable {
 
 	private JTextArea outputView;
 
-	/*
+	/**
 	 * Constructor for Clear
 	 * @param outputView The JTextArea that will be cleared when executed
 	 */
