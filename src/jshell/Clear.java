@@ -28,5 +28,9 @@ public class Clear implements Executable {
 	public void execute(String[] currDir, String[] args) {
 		//Clear output when executed by setting text to empty
 		outputView.setText("");
+		//Fill with blank lines to have text be at the bottom
+		for(int i = 0; i < 60; i++){
+			outputView.append("\n");
+		}
 	}
 }
