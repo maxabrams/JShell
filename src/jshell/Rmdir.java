@@ -17,7 +17,7 @@ public class Rmdir implements Executable {
 
 	@Override
 	public String getAbout() {
-		return getName() + "- recursively remove a directory at the given full path";
+		return getName() + " - recursively remove a directory at the given full path";
 	}
 
 	/**
